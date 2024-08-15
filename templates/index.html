@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>World Of Games</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Welcome to the World Of Games</h1>
+    <p><strong>Select a game:</strong></p>
+    <div class="game-grid">
+        <div class="game-item">
+            <a href="{{ url_for('guess_game') }}">Guess Game</a>
+        </div>
+        <div class="game-item">
+            <a href="{{ url_for('memory_game') }}">Memory Game</a>
+        </div>
+        <div class="game-item">
+            <a href="{{ url_for('currency_roulette') }}">Currency Roulette Game</a>
+        </div>
+    </div>
+
+    <!-- Score container placed outside the main grid layout -->
+    <div class="score-container">
+        <p>{{ username }}, your score is: <strong>{{ score }}</strong></p>
+    </div>
+
+    <div class="logout-container">
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </div>
+</body>
+</html>
