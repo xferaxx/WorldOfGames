@@ -1,0 +1,147 @@
+############ how i run my app using Kubernetes ############
+1) helm create scores-app
+
+after this i prepared all the YAML files
+
+
+Chart Structure:
+
+scores-app/
+│
+├── Chart.yaml
+├── values.yaml
+├── charts/
+├── templates/
+│   ├── _helpers.tpl
+│   ├── deployment-app.yaml
+│   ├── deployment-app.yaml
+│   ├── service-app.yaml
+│   ├── service-db.yaml
+│   ├── ingress.yaml
+│   ├── persistentvolume.yaml
+│   ├── configmap-init-sql.yaml
+│   ├── persistentvolumeclaim.yaml
+│   ├── hpa.yaml
+│   ├── serviceaccount.yaml
+│   ├── NOTES.txt
+│   ├── test/
+│   │   └── test-connection.yaml
+├── .helmignore
+
+
+
+
+2) helm install scores-app ./scores-app
+
+
+
+
+3) kubectl get all
+
+
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/scores-app-app-db59fc69d-979nh   1/1     Running   0          29m
+pod/scores-app-db-5fc9bbfd47-skmcd   1/1     Running   0          29m
+
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP    17d
+service/scores-app-app   ClusterIP   10.109.99.207   <none>        5000/TCP   29m
+service/scores-app-db    ClusterIP   10.108.1.73     <none>        3306/TCP   29m
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/scores-app-app   1/1     1            1           29m
+deployment.apps/scores-app-db    1/1     1            1           29m
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/scores-app-app-db59fc69d   1         1         1       29m
+replicaset.apps/scores-app-db-5fc9bbfd47   1         1         1       29m
+
+
+
+
+*Verify Connection to the Database
+ To verify that your application is correctly connecting to the database:
+
+#Access the MySQL CLI: Enter the MySQL CLI inside the database pod.
+
+4) kubectl exec -it scores-app-db-5fc9bbfd47-skmcd -- mysql -u root -p
+
+
+
+
+
+
+
+#use this commands to see the database and the tables and rows:
+
+
+mysql> USE games;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+Database changed
+
+
+mysql> SHOW TABLES;
++-----------------+
+| Tables_in_games |
++-----------------+
+| users           |
+| users_scores    |
++-----------------+
+2 rows in set (0.01 sec)
+
+
+mysql> select * FROM users;
++----+----------+----------+
+| id | username | password |
++----+----------+----------+
+|  1 | test     | test     |
++----+----------+----------+
+1 row in set (0.00 sec)
+
+
+mysql> select * FROM users_scores;
++---------+-------+
+| user_id | score |
++---------+-------+
+|       1 |     8 |
++---------+-------+
+1 row in set (0.00 sec)
+
+
+
+
+** to run the app
+
+5) kubectl port-forward svc/scores-app-app 5000:5000
+
+
+open browser and 127.0.0.1:5000
+
+
+
+
+
+
+*To Stop the Deployments:
+Scale down the application deployment:
+1) kubectl scale deployment scores-app-app --replicas=0
+
+Scale down the database deployment:
+2) kubectl scale deployment scores-app-db --replicas=0
+
+
+
+
+*To Start Them Again:
+Scale up the application deployment:
+1) kubectl scale deployment scores-app-app --replicas=1
+
+Scale up the database deployment:
+2) kubectl scale deployment scores-app-db --replicas=1
+
+
+
+
+
+*NOTE:  XAMPP WAS OFF ON MY LAPTOP AND PORT 3306 WAS NOT IN USE BY XAMPP
